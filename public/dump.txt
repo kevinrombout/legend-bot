@@ -1,0 +1,6 @@
+• datamodelletje opzetten
+• config bestandje met settings (e.g. welke emoji moet er getracked worden)
+• slack events parsen
+• emoji count wegschrijven naar een user
+• ranking endpoint
+• nadenken hoe we verschillende *organisations* kunnen supporten met 1 draaiende backend, dan hoeven we hem maar 1 keer te deployen. Kunnen we hem later lekker makkelijk publiek maken :moneybag:
