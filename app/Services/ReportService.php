@@ -11,10 +11,7 @@ class ReportService
 {
     public function generateReport(Carbon $startDate, Carbon $endDate): Collection
     {
-        $transactions = Transaction::query()
-            ->with(['sender', 'receiver'])
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->get();
+        $transactions = $this->getTransactions($startDate, $endDate);
 
         $transactionsPerReceiver = $transactions->groupBy('receiver_id');
         
@@ -24,5 +21,13 @@ class ReportService
                 $transactions->sum('count')
             );
         })->sortByDesc('count')->values();
+    }
+
+    protected function getTransactions(Carbon $startDate, Carbon $endDate): Collection
+    {
+        return Transaction::query()
+            ->with(['sender', 'receiver'])
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get();
     }
 }
