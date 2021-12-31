@@ -10,7 +10,8 @@ use Lisennk\LaravelSlackEvents\Events\Message;
 class SlackMessageProcessingService
 {
     public function __construct(
-        protected SlackMessageParsingService $slackMessageParsingService
+        protected SlackMessageParsingService $slackMessageParsingService,
+        protected SlackUserService $slackUserService
     ) {}
 
     public function processMessage(Message $message): void
@@ -81,20 +82,7 @@ class SlackMessageProcessingService
 
         return User::create([
             'slack_user_id' => $slackId,
-            'slack_user_name' => $slackId, // TODO: Get User name from Slack API
-        ]);
-    }
-
-    protected function getUserBySlackName(string $slackName): User
-    {
-        $user = User::firstWhere('slack_user_name', $slackName);
-        if ($user instanceof User) {
-            return $user;
-        }
-
-        return User::create([
-            'slack_user_id' => $slackName, // TODO: Get User ID from Slack API
-            'slack_user_name' => $slackName,
+            'slack_user_name' => $this->slackUserService->findUser($slackId)->getName()
         ]);
     }
 }
