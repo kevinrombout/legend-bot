@@ -19,6 +19,8 @@ class SlackMessageService
         $receivers = $this->getReceivers($message);
         $identifierCount = $this->getIdentifierCount($message);
 
+        // TODO: Validate if user has enough balance to send this amount of kudo's
+
         foreach ($receivers as $receiver) {
             Transaction::create([
                 'sender_id' => $sender->id,
