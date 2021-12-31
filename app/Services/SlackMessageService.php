@@ -38,37 +38,36 @@ class SlackMessageService
 
     protected function peopleAreTaggedInMessage(Message $message): bool
     {
-        return str_contains($message->data->text, '@');
+        return str_contains($this->getMessageText($message), '<@');
     }
 
     protected function messageContainsLegendIdentifier(Message $message): bool
     {
-        return str_contains($message->data->text, config('legend-bot.identifier'));
+        return str_contains($this->getMessageText($message), config('legend-bot.identifier'));
     }
 
     protected function getSender(Message $message): User
     {
-        return $this->getUserBySlackId($message->data->user);
+        return $this->getUserBySlackId($message->data['user']);
     }
 
     protected function getReceivers(Message $message): Collection
     {
-        $words = explode(' ', $message->data->text);
+        $words = explode(' ', $this->getMessageText($message));
 
         return collect($words)->filter(function(string $word) {
-            return str_starts_with($word, '@');
+            return str_starts_with($word, '<@');
         })->map(function (string $word) {
-            return $this->getUserBySlackName($word);
-        });
+            $username = ltrim($word, "<@");
+            $username = rtrim($username, ">");
+
+            return $this->getUserBySlackName($username);
+        })->unique();
     }
 
     protected function getIdentifierCount(Message $message): int
     {
-        $words = explode(' ', $message->data->text);
-
-        return collect($words)->filter(function(string $word) {
-            return $word === config('legend-bot.identifier');
-        })->count();
+        return substr_count($this->getMessageText($message), config('legend-bot.identifier'));
     }
 
     protected function getUserBySlackId(string $slackId): User
@@ -95,5 +94,11 @@ class SlackMessageService
             'slack_user_id' => $slackName, // TODO: Get User ID from Slack API
             'slack_user_name' => $slackName,
         ]);
+    }
+
+    protected function getMessageText(Message $message): string
+    {
+        // Replace "\u00a0" (Unicode non-breaking space) with normal space
+        return str_replace( chr( 194 ) . chr( 160 ), ' ', $message->data['text']);
     }
 }
