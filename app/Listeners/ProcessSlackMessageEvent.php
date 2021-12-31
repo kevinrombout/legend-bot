@@ -2,17 +2,17 @@
 
 namespace App\Listeners;
 
-use App\Services\SlackMessageService;
+use App\Services\SlackMessageProcessingService;
 use Lisennk\LaravelSlackEvents\Events\Message;
 
 class ProcessSlackMessageEvent
 {
     public function __construct(
-        protected SlackMessageService $slackMessageService
+        protected SlackMessageProcessingService $slackMessageProcessingService
     ) {}
 
     public function handle(Message $event)
     {
-        $this->slackMessageService->processMessage($event);
+        $this->slackMessageProcessingService->processMessage($event);
     }
 }
